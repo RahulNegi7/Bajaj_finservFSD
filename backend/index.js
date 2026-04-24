@@ -95,29 +95,39 @@ app.post('/bfhl', (req, res) => {
         // Find roots (inDegree == 0)
         let total_trees = 0;
         let largest_tree_root = null;
-        let largest_tree_size = -1; // size here can mean total nodes, or depth. Let's use depth as size.
+        let largest_tree_size = -1; 
 
         const processedNodes = new Set();
         
         // Process true roots first
         for (const node of nodes) {
             if (inDegree.get(node) === 0) {
-                total_trees++;
                 const depthMap = { max: 1 };
                 const treeObj = buildTree(node, new Set(), processedNodes, 1, depthMap);
                 
-                if (treeObj.has_cycle) total_cycles++;
+                if (treeObj.has_cycle) {
+                    total_cycles++;
+                    hierarchies.push({
+                        root: node,
+                        tree: {},
+                        has_cycle: true
+                    });
+                } else {
+                    total_trees++;
+                    hierarchies.push({
+                        root: node,
+                        tree: treeObj,
+                        depth: depthMap.max
+                    });
 
-                hierarchies.push({
-                    root: node,
-                    tree: treeObj,
-                    depth: depthMap.max,
-                    ...(treeObj.has_cycle && { has_cycle: true })
-                });
-
-                if (depthMap.max > largest_tree_size) {
-                    largest_tree_size = depthMap.max;
-                    largest_tree_root = node;
+                    if (depthMap.max > largest_tree_size) {
+                        largest_tree_size = depthMap.max;
+                        largest_tree_root = node;
+                    } else if (depthMap.max === largest_tree_size) {
+                        if (largest_tree_root === null || node.localeCompare(largest_tree_root) < 0) {
+                            largest_tree_root = node;
+                        }
+                    }
                 }
             }
         }
@@ -132,33 +142,10 @@ app.post('/bfhl', (req, res) => {
                 
                 hierarchies.push({
                     root: node,
-                    tree: treeObj,
-                    depth: depthMap.max,
+                    tree: {},
                     has_cycle: true
                 });
             }
-        }
-
-        // Cleanup boolean has_cycle inside nested trees objects to prevent duplicate logic leaks if needed
-        // but problem doesn't forbid it
-        
-        // Ensure to remove `has_cycle: true` from the inner children if it's placed there to match exactly the required schema
-        // The spec says:
-        // { "root": string, "tree": object, "depth"?: number, "has_cycle"?: true }
-        // Our structure puts has_cycle at top level inside hierarchy array elements correctly.
-
-        // Also, replace inner `has_cycle` key from trees
-        const sanitizeTree = (t) => {
-            if (t.has_cycle !== undefined) {
-                delete t.has_cycle;
-            }
-            for (const key in t) {
-                sanitizeTree(t[key]);
-            }
-        };
-
-        for (const h of hierarchies) {
-             sanitizeTree(h.tree);
         }
 
         res.json({
