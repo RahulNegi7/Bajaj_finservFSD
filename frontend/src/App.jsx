@@ -65,7 +65,7 @@ function App() {
     <div className="app-container">
       <div className="glass-panel">
         <header className="header">
-          <h1>Nexus Graph</h1>
+          <h1>Data Insights Engine</h1>
           <p>Hierarchical Relationship Analyzer</p>
         </header>
 

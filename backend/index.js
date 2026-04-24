@@ -7,6 +7,10 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+app.get('/', (req, res) => {
+    res.status(200).json({ message: "API is running successfully!" });
+});
+
 app.post('/bfhl', (req, res) => {
     try {
         const { data } = req.body;
