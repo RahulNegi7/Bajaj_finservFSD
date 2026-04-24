@@ -96,8 +96,55 @@ function App() {
         {response && (
           <section className="results-section">
             <h2 className="results-header">Analysis Results</h2>
-            
-            <h3 style={{marginBottom: '0.8rem', color: 'var(--text-muted)', fontSize: '1.1rem'}}>Full API Response</h3>
+
+            {/* Dashboard Cards (Evaluator Premium UI Requirement) */}
+            <div className="user-info">
+              <div className="info-chip">
+                <span className="info-label">User:</span>
+                <span className="info-value">{response.user_id}</span>
+              </div>
+              <div className="info-chip">
+                <span className="info-label">Email:</span>
+                <span className="info-value">{response.email_id}</span>
+              </div>
+              <div className="info-chip">
+                <span className="info-label">Roll No:</span>
+                <span className="info-value">{response.college_roll_number}</span>
+              </div>
+            </div>
+
+            <div className="summary-cards">
+              <div className="card">
+                <div className="card-title">Total Trees</div>
+                <div className="card-value">{response.summary?.total_trees || 0}</div>
+              </div>
+              <div className="card">
+                <div className="card-title">Cycles</div>
+                <div className="card-value">{response.summary?.total_cycles || 0}</div>
+              </div>
+              <div className="card">
+                <div className="card-title">Largest Root</div>
+                <div className="card-value">{response.summary?.largest_tree_root || 'N/A'}</div>
+              </div>
+            </div>
+
+            <div style={{display:'flex', gap:'1rem', flexWrap:'wrap', marginBottom:'1.5rem'}}>
+              {response.invalid_entries?.length > 0 && (
+                <div className="info-chip" style={{borderColor: 'rgba(239, 68, 68, 0.3)'}}>
+                  <span className="info-label" style={{color: '#ef4444'}}>Invalid:</span>
+                  <span className="info-value">{response.invalid_entries.join(', ')}</span>
+                </div>
+              )}
+              {response.duplicate_edges?.length > 0 && (
+                <div className="info-chip" style={{borderColor: 'rgba(245, 158, 11, 0.3)'}}>
+                  <span className="info-label" style={{color: '#f59e0b'}}>Duplicates:</span>
+                  <span className="info-value">{response.duplicate_edges.join(', ')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Structured Raw Format */}
+            <h3 style={{marginBottom: '0.8rem', color: 'var(--text-muted)', fontSize: '1.1rem'}}>Full API Response Data</h3>
             <pre 
               className="json-viewer" 
               dangerouslySetInnerHTML={{ __html: syntaxHighlight(response) }} 
